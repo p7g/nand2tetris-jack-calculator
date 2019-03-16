@@ -23,25 +23,6 @@ class Main {
       let input = Keyboard.readLine("> ");
       let lower = Main.toLowerCase(input);
       if (Main.stringEqual(lower, quit)) {
-        do lower.dispose();
-        do input.dispose();
-
-        if (~(lexer = null)) {
-          do lexer.dispose();
-        }
-        if (~(tokens = null)) {
-          while (tokens.length() > 0) {
-            let token = tokens.pop();
-            do token.dispose();
-          }
-          do tokens.dispose();
-        }
-        if (~(ast = null)) {
-          do ast.dispose();
-        }
-        do quit.dispose();
-        do TokenType.disposeAll();
-
         // Print out "Goodbye" without any implicit allocations...
         do Output.printChar(71);
         do Output.printChar(111);
