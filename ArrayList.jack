@@ -1,0 +1,131 @@
+class ArrayList {
+  field Array array;
+  field int size;
+  field int capacity;
+  field int position;
+
+  static int INITIAL_CAPACITY;
+
+  constructor ArrayList new() {
+    let INITIAL_CAPACITY = 8;
+
+    let size = 0;
+    let capacity = INITIAL_CAPACITY;
+    let position = 0;
+    let array = Array.new(capacity);
+    return this;
+  }
+
+  method boolean isValid() {
+    return position < size;
+  }
+
+  method int length() {
+    return size;
+  }
+
+  method Array get(int index) {
+    if (index < size) {
+      return array[index];
+    }
+    return null;
+  }
+
+  method Array current() {
+    return get(position);
+  }
+
+  method void advance() {
+    let position = position + 1;
+    return;
+  }
+
+  method Array next() {
+    if (isValid()) {
+      do advance();
+    }
+    return current();
+  }
+
+  method void reset() {
+    let position = 0;
+    return;
+  }
+
+  method int push(Array thing) {
+    if (size < capacity) {
+      let array[size] = thing;
+      let size = size + 1;
+      return size;
+    }
+    do expand();
+    return push(thing);
+  }
+
+  method int unshift(Array thing) {
+    var int i;
+    if (size < capacity) {
+      let i = size;
+      while (i > 0) {
+        let array[i] = array[i - 1];
+        let i = i - 1;
+      }
+      let array[0] = thing;
+      let size = size + 1;
+      return size;
+    }
+    do expand();
+    return unshift(thing);
+  }
+
+  method Array pop() {
+    if (size > 0) {
+      let size = size - 1;
+      return array[size];
+    }
+    return null;
+  }
+
+  method Array shift() {
+    var Array item;
+    var int i;
+    if (size > 0) {
+      let item = array[0];
+
+      let i = 1;
+      while (i < size) {
+        let array[i - 1] = array[i];
+        let i = i + 1;
+      }
+
+      let size = size - 1;
+      return item;
+    }
+    return null;
+  }
+
+  method void expand() {
+    var Array newArray;
+    var int newCapacity;
+    var int i;
+    let newCapacity = capacity * 2;
+    let newArray = Array.new(newCapacity);
+
+    let i = 0;
+    while (i < size) {
+      let newArray[i] = array[i];
+      let i = i + 1;
+    }
+
+    do array.dispose();
+    let array = newArray;
+    let capacity = newCapacity;
+    return;
+  }
+
+  method void dispose() {
+    do array.dispose();
+    do Memory.deAlloc(this);
+    return;
+  }
+}

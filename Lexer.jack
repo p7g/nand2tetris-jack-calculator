@@ -1,0 +1,160 @@
+class Lexer {
+  field String input;
+  field ArrayList tokens;
+  field int position;
+  field int length;
+
+  constructor Lexer new(String inputString) {
+    let position = 0;
+    let length = inputString.length();
+    let input = inputString;
+    let tokens = ArrayList.new();
+    return this;
+  }
+
+  method ArrayList lex() {
+    var char c;
+    var String lexeme;
+
+    while (isValid()) {
+      let c = current();
+
+      if (Lexer.isInt(c)) {
+        do lexInt();
+      }
+      else {
+        if (Lexer.isOperator(c)) {
+          do lexOperator();
+        }
+        else {
+          if (Lexer.isWhitespace(c)) {
+            do advance();
+          }
+          else {
+            if (c = 40) {
+              let lexeme = String.new(1);
+              do lexeme.appendChar(c);
+              do tokens.push(Token.new(TokenType.LEFT_PAREN(), lexeme));
+              do advance();
+            }
+            else {
+              if (c = 41) {
+                let lexeme = String.new(1);
+                do lexeme.appendChar(c);
+                do tokens.push(Token.new(TokenType.RIGHT_PAREN(), lexeme));
+                do advance();
+              }
+              else {
+                do Sys.error(9999);
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return tokens;
+  }
+
+  method void lexInt() {
+    var Token token;
+    var String lexeme;
+    var char c;
+    var boolean done;
+    let lexeme = String.new(5);
+    let done = false;
+
+    while (isValid() & (~done)) {
+      let c = current();
+      if (Lexer.isInt(c)) {
+        if (lexeme.length() = 5) {
+          do Sys.error(9998);
+        }
+        do lexeme.appendChar(c);
+        do advance();
+      }
+      else {
+        let done = true;
+      }
+    }
+
+    let token = Token.new(TokenType.INT(), lexeme);
+    do tokens.push(token);
+
+    return;
+  }
+
+  method void lexOperator() {
+    var Token token;
+    var String lexeme;
+    var char c;
+    var boolean done;
+
+    let lexeme = String.new(2);
+    let done = false;
+
+    while (isValid() & ~(done)) {
+      let c = current();
+      if (Lexer.isOperator(c)) {
+        if (lexeme.length() = 2) {
+          do Sys.error(9997);
+        }
+        do lexeme.appendChar(c);
+        do advance();
+      }
+      else {
+        let done = true;
+      }
+    }
+
+    let token = Token.new(TokenType.OPERATOR(), lexeme);
+    do tokens.push(token);
+
+    return;
+  }
+
+  method char current() {
+    return input.charAt(position);
+  }
+
+  method boolean isValid() {
+    if (position < length) {
+      return true;
+    }
+    return false;
+  }
+
+  method void advance() {
+    let position = position + 1;
+    return;
+  }
+
+  method void dispose() {
+    do Memory.deAlloc(this);
+    return;
+  }
+
+  function boolean isWhitespace(char c) {
+    // newline, space, tab
+    if ((c = 10) | (c = 32) | (c = 9)) {
+      return true;
+    }
+    return false;
+  }
+
+  function boolean isInt(char c) {
+    // 0 to 9
+    if ((c > 47) & (c < 58)) {
+      return true;
+    }
+    return false;
+  }
+
+  function boolean isOperator(char c) {
+    // *, /, +, -
+    if ((c = 42) | (c = 47) | (c = 43) | (c = 45)) {
+      return true;
+    }
+    return false;
+  }
+}

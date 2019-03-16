@@ -1,0 +1,53 @@
+class Evaluator {
+  function int evaluate(Ast node) {
+    var String type;
+    var int left, right, total;
+
+    let type = node.getType();
+
+    if (Main.stringEqual(type, "term")) {
+      return node.asInt();
+    }
+    if (Main.stringEqual(type, "addition")) {
+      return Evaluator.evaluate(node.getChild(0)) + Evaluator.evaluate(node.getChild(1));
+    }
+    if (Main.stringEqual(type, "subtraction")) {
+      return Evaluator.evaluate(node.getChild(0)) - Evaluator.evaluate(node.getChild(1));
+    }
+    if (Main.stringEqual(type, "multiplication")) {
+      return Math.multiply(
+        Evaluator.evaluate(node.getChild(0)),
+        Evaluator.evaluate(node.getChild(1))
+      );
+    }
+    if (Main.stringEqual(type, "division")) {
+      return Math.divide(
+        Evaluator.evaluate(node.getChild(0)),
+        Evaluator.evaluate(node.getChild(1))
+      );
+    }
+    if (Main.stringEqual(type, "exponentiation")) {
+      let left = Evaluator.evaluate(node.getChild(0));
+      let right = Evaluator.evaluate(node.getChild(1));
+
+      if (right = 0) {
+        return 1;
+      }
+
+      if (right = 1) {
+        return left;
+      }
+
+      let total = left;
+      while (right > 1) {
+        let total = total * left;
+        let right = right - 1;
+      }
+
+      return total;
+    }
+
+    do Sys.error(9994);
+    return 0;
+  }
+}

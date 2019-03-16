@@ -1,0 +1,217 @@
+class Parser {
+  field ArrayList tokens;
+  field int position;
+  field int numTokens;
+
+  constructor Parser new(ArrayList toks) {
+    let tokens = toks;
+    let position = 0;
+    let numTokens = toks.length();
+    return this;
+  }
+
+  method Ast parse() {
+    var Ast root;
+
+    let root = expression();
+
+    if (~(position = numTokens)) {
+      do Sys.error(9996);
+    }
+
+    return root;
+  }
+
+  method void advance() {
+    let position = position + 1;
+    return;
+  }
+
+  method Token current() {
+    return tokens.get(position);
+  }
+
+  method void expect(TokenType type) {
+    var Token token;
+
+    let token = current();
+    if (~(token.getType() = type)) {
+      do Sys.error(9994);
+    }
+
+    return;
+  }
+
+  method Ast expression() {
+    return sum();
+  }
+
+  method Ast sum() {
+    var Ast left, right;
+    var Token operator;
+    var String lexeme;
+
+    let left = product();
+
+    if (position < numTokens) {
+      let operator = current();
+      let lexeme = operator.getLexeme();
+      if (Main.stringEqual(lexeme, "+")) {
+        do advance();
+        let right = sum();
+
+        let left = Ast.addition(left, right);
+      }
+      else {
+        if (Main.stringEqual(lexeme, "-")) {
+          do advance();
+          let right = sum();
+          let left = Ast.subtraction(left, right);
+        }
+      }
+    }
+
+    return left;
+  }
+
+  method Ast product() {
+    var Ast left, right;
+    var Token operator;
+    var String lexeme;
+
+    let left = exponentiation();
+
+    if (position < numTokens) {
+      let operator = current();
+      let lexeme = operator.getLexeme();
+      if (Main.stringEqual(lexeme, "*")) {
+        do advance();
+        let right = product();
+        let left = Ast.multiplication(left, right);
+      }
+      else {
+        if (Main.stringEqual(lexeme, "/")) {
+          let right = product();
+          let left = Ast.division(left, right);
+        }
+      }
+    }
+
+    return left;
+  }
+
+  method Ast exponentiation() {
+    var Ast left, right;
+    var Token operator;
+    var String lexeme;
+
+    let left = negation();
+
+    if (position < numTokens) {
+      let operator = current();
+      let lexeme = operator.getLexeme();
+      if (Main.stringEqual(lexeme, "**")) {
+        do advance();
+        let right = exponentiation();
+        let left = Ast.exponentiation(left, right);
+      }
+    }
+
+    return left;
+  }
+
+  method Ast negation() {
+    var Ast expr;
+    var String lexeme;
+    var Token operator;
+
+    let operator = current();
+
+    if (Main.stringEqual(operator.getLexeme(), "-")) {
+      do advance();
+      let expr = Ast.negation(term());
+    }
+    else {
+      let expr = term();
+    }
+
+    return expr;
+  }
+
+  method Ast term() {
+    var Ast expr;
+    var Token token;
+    var TokenType type;
+
+    let token = current();
+    let type = token.getType();
+
+    if (type = TokenType.LEFT_PAREN()) {
+      do advance();
+      let expr = expression();
+      do expect(TokenType.RIGHT_PAREN());
+      do advance();
+    }
+    else {
+      let expr = integer();
+    }
+
+    return expr;
+  }
+
+  method Ast integer() {
+    var Ast expr;
+    var Token token;
+    var String lexeme;
+    var TokenType type;
+
+    let token = current();
+    let type = token.getType();
+    if (type = TokenType.INT()) {
+      let lexeme = token.getLexeme();
+      let expr = Ast.term(lexeme.intValue());
+      do advance();
+    }
+    else {
+      do Sys.error(9995);
+    }
+
+    return expr;
+  }
+
+  method void dispose() {
+    do Memory.deAlloc(this);
+    return;
+  }
+
+  function void print(Ast node) {
+    var String type;
+
+    let type = node.getType();
+    if (Main.stringEqual(type, "addition")
+      | Main.stringEqual(type, "subtraction")
+      | Main.stringEqual(type, "multiplication")
+      | Main.stringEqual(type, "division")
+      | Main.stringEqual(type, "exponentiation")) {
+      do Output.printChar(40); // left paren
+      do Output.printString(type);
+      do Output.printChar(32); // space
+      do Parser.print(node.getChild(0));
+      do Output.printChar(32); // space
+      do Parser.print(node.getChild(1));
+      do Output.printChar(41); // right paren
+    }
+    if (Main.stringEqual(type, "negation")) {
+      do Output.printChar(40); // left paren
+      do Output.printString(type);
+      do Output.printChar(32); // space
+      do Parser.print(node.getChild(0));
+      do Output.printChar(41); // right paren
+    }
+    if (Main.stringEqual(type, "term")) {
+      do Output.printInt(node.asInt());
+    }
+
+    return;
+  }
+}

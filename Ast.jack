@@ -1,0 +1,77 @@
+class Ast {
+  field String type;
+  field Array children;
+
+  constructor Ast new(String typ, Array a) {
+    let type = typ;
+    let children = a;
+    return this;
+  }
+
+  method int asInt() {
+    return children;
+  }
+
+  method String getType() {
+    return type;
+  }
+
+  method Ast getChild(int n) {
+    return children[n];
+  }
+
+  method void dispose() {
+    var int i, len;
+    var Ast child;
+    do type.dispose();
+    let i = 0;
+    let len = children.length();
+    while (i < len) {
+      let child = children[i];
+      do child.dispose();
+    }
+    do children.dispose();
+    do Memory.deAlloc(this);
+    return;
+  }
+
+  function Ast binary(String type, Ast a, Ast b) {
+    var Array children;
+
+    let children = Array.new(2);
+    let children[0] = a;
+    let children[1] = b;
+    return Ast.new(type, children);
+  }
+
+  function Ast term(int value) {
+    return Ast.new("term", value);
+  }
+
+  function Ast addition(Ast a, Ast b) {
+    return Ast.binary("addition", a, b);
+  }
+
+  function Ast subtraction(Ast a, Ast b) {
+    return Ast.binary("subtraction", a, b);
+  }
+
+  function Ast multiplication(Ast a, Ast b) {
+    return Ast.binary("multiplication", a, b);
+  }
+
+  function Ast division(Ast a, Ast b) {
+    return Ast.binary("division", a, b);
+  }
+
+  function Ast exponentiation(Ast a, Ast b) {
+    return Ast.binary("exponentiation", a, b);
+  }
+
+  function Ast negation(Ast a) {
+    var Array child;
+    let child = Array.new(1);
+    let child[0] = a;
+    return Ast.new("negation", child);
+  }
+}

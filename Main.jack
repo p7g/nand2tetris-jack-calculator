@@ -1,0 +1,136 @@
+class Main {
+  static String VERSION;
+
+  function void main() {
+    // start repl
+    //  parse
+    //  evaluate
+    //  print
+    var Parser parser;
+    var Lexer lexer;
+    var String input;
+    var String quit;
+    var ArrayList tokens;
+    var Ast ast;
+    var int result;
+    var Token token;
+    var String lower;
+
+    let quit = "quit";
+    let VERSION = "1.0.0";
+
+    while (true) {
+      let input = Keyboard.readLine("> ");
+      let lower = Main.toLowerCase(input);
+      if (Main.stringEqual(lower, quit)) {
+        do lower.dispose();
+        do input.dispose();
+
+        if (~(lexer = null)) {
+          do lexer.dispose();
+        }
+        if (~(tokens = null)) {
+          while (tokens.length() > 0) {
+            let token = tokens.pop();
+            do token.dispose();
+          }
+          do tokens.dispose();
+        }
+        if (~(ast = null)) {
+          do ast.dispose();
+        }
+        do quit.dispose();
+        do TokenType.disposeAll();
+
+        // Print out "Goodbye" without any implicit allocations...
+        do Output.printChar(71);
+        do Output.printChar(111);
+        do Output.printChar(111);
+        do Output.printChar(100);
+        do Output.printChar(98);
+        do Output.printChar(121);
+        do Output.printChar(101);
+        do Output.println();
+        do Sys.halt();
+        return;
+      }
+      do lower.dispose();
+
+      let lexer = Lexer.new(input);
+      let tokens = lexer.lex();
+      let parser = Parser.new(tokens);
+      let ast = parser.parse();
+      // while (tokens.length() > 0) {
+      //   let token = tokens.shift();
+      //   do Main.printToken(token);
+      //   do token.dispose();
+      // }
+      // do Output.println();
+      // do Parser.print(ast);
+      // do Output.println();
+      // do Output.println();
+
+      let result = Evaluator.evaluate(ast);
+      do Output.printInt(result);
+      do Output.println();
+
+      do tokens.dispose();
+      do lexer.dispose();
+      do parser.dispose();
+    }
+
+    return;
+  }
+
+  function void printToken(Token t) {
+    var TokenType type;
+
+    let type = t.getType();
+    do Output.printString(type.getValue());
+    do Output.printString(": ");
+    do Output.printString(t.getLexeme());
+    do Output.println();
+    return;
+  }
+
+  function String toLowerCase(String str) {
+    var String lower;
+    var int i, len;
+    var char c;
+    let len = str.length();
+    let lower = String.new(len);
+
+    let i = 0;
+    while (i < len) {
+      let c = str.charAt(i);
+      if ((c > 64) & (c < 91)) {
+        do lower.appendChar(c + 32);
+      }
+      else {
+        do lower.appendChar(c);
+      }
+      let i = i + 1;
+    }
+
+    return lower;
+  }
+
+  function boolean stringEqual(String a, String b) {
+    var int i, len;
+    let len = a.length();
+
+    if (~(len = b.length())) {
+      return false;
+    }
+
+    let i = 0;
+    while (i < len) {
+      if (~(a.charAt(i) = b.charAt(i))) {
+        return false;
+      }
+      let i = i + 1;
+    }
+
+    return true;
+  }
+}

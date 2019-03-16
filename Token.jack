@@ -1,0 +1,25 @@
+class Token {
+  field TokenType type;
+  field String lexeme;
+  field int intValue;
+
+  constructor Token new(TokenType t, String lexme) {
+    let type = t;
+    let lexeme = lexme;
+    return this;
+  }
+
+  method String getLexeme() {
+    return lexeme;
+  }
+
+  method TokenType getType() {
+    return type;
+  }
+
+  method void dispose() {
+    do lexeme.dispose();
+    do Memory.deAlloc(this);
+    return;
+  }
+}

@@ -1,0 +1,67 @@
+class TokenType {
+  field String type;
+
+  static TokenType intType;
+  static TokenType operatorType;
+  static TokenType leftParenType;
+  static TokenType rightParenType;
+
+  constructor TokenType new(String typ) {
+    let type = typ;
+    return this;
+  }
+
+  method String getValue() {
+    return type;
+  }
+
+  method void dispose() {
+    do type.dispose();
+    do Memory.deAlloc(this);
+    return;
+  }
+
+  function void disposeAll() {
+    if (~(intType = null)) {
+      do intType.dispose();
+    }
+    if (~(operatorType = null)) {
+      do operatorType.dispose();
+    }
+    if (~(leftParenType = null)) {
+      do leftParenType.dispose();
+    }
+    if (~(rightParenType = null)) {
+      do rightParenType.dispose();
+    }
+    return;
+  }
+
+  function TokenType INT() {
+    if (intType = null) {
+      let intType = TokenType.new("int");
+    }
+    return intType;
+  }
+
+  function TokenType OPERATOR() {
+    if (operatorType = null) {
+      let operatorType = TokenType.new("operator");
+    }
+    return operatorType;
+  }
+
+  function TokenType LEFT_PAREN() {
+    if (leftParenType = null) {
+      let leftParenType = TokenType.new("left paren");
+    }
+    return leftParenType;
+  }
+
+  function TokenType RIGHT_PAREN() {
+    if (rightParenType = null) {
+      let rightParenType = TokenType.new("right paren");
+    }
+    return rightParenType;
+  }
+}
