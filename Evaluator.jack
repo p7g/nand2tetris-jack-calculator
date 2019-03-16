@@ -26,6 +26,10 @@ class Evaluator {
         Evaluator.evaluate(node.getChild(1))
       );
     }
+    if (Main.stringEqual(type, "negation")) {
+      let left = Evaluator.evaluate(node.getChild(0));
+      return -left;
+    }
     if (Main.stringEqual(type, "exponentiation")) {
       let left = Evaluator.evaluate(node.getChild(0));
       let right = Evaluator.evaluate(node.getChild(1));
